@@ -10,6 +10,8 @@ import EditModal from './components/EditModal';
 import FilterTabs from './components/FilterTabs';
 import Dashboard from './components/Dashboard';
 import TaskList from './components/TaskList';
+import GalleryView from './components/GalleryView';
+import ViewToggle from './components/ViewToggle';
 import LoadingOverlay from './components/LoadingOverlay';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const [editingSnap, setEditingSnap] = useState(null);
+  const [viewMode, setViewMode] = useState('feed');
+  const [scrollToId, setScrollToId] = useState(null);
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem('snapdo-theme') === 'dark',
   );
@@ -109,14 +113,27 @@ function App() {
           </button>
         </div>
         <FilterTabs active={activeFilter} onChange={setActiveFilter} />
+        <ViewToggle view={viewMode} onChange={setViewMode} />
       </header>
       <Dashboard snaps={snaps} />
-      <TaskList
-        snaps={filteredSnaps}
-        onToggleTask={handleToggleTask}
-        onEdit={setEditingSnap}
-        onDelete={handleDelete}
-      />
+      {viewMode === 'feed' ? (
+        <TaskList
+          snaps={filteredSnaps}
+          onToggleTask={handleToggleTask}
+          onEdit={setEditingSnap}
+          onDelete={handleDelete}
+          scrollToId={scrollToId}
+          onScrolled={() => setScrollToId(null)}
+        />
+      ) : (
+        <GalleryView
+          snaps={filteredSnaps}
+          onSelect={(snap) => {
+            setScrollToId(snap.id);
+            setViewMode('feed');
+          }}
+        />
+      )}
       <AddButton onClick={() => setModalOpen(true)} />
       {modalOpen && (
         <InputModal

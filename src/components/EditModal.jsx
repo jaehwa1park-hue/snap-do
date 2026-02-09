@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { CATEGORY_CONFIG } from '../utils/categoryStyle';
 
 export default function EditModal({ snap, onSave, onClose }) {
   const [title, setTitle] = useState(snap.title);
+  const [category, setCategory] = useState(snap.category);
   const [tasks, setTasks] = useState(snap.tasks.map((t) => ({ ...t })));
 
   const handleTaskChange = (id, text) => {
@@ -13,6 +15,7 @@ export default function EditModal({ snap, onSave, onClose }) {
     if (!title.trim()) return;
     onSave(snap.id, {
       title: title.trim(),
+      category,
       tasks: tasks.map((t) => ({ ...t, text: t.text.trim() })),
     });
     onClose();
@@ -50,6 +53,28 @@ export default function EditModal({ snap, onSave, onClose }) {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-[#2a2a2a] dark:text-white"
           />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-600 dark:text-gray-400">
+            분류
+          </label>
+          <div className="flex gap-2">
+            {Object.entries(CATEGORY_CONFIG).map(([key, cfg]) => (
+              <button
+                key={key}
+                onClick={() => setCategory(key)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                  category === key
+                    ? `${cfg.bg} ${cfg.text} ring-2 ring-indigo-400 ring-offset-1 dark:ring-offset-[#1e1e1e]`
+                    : 'bg-gray-100 text-gray-400 dark:bg-[#2a2a2a] dark:text-gray-500'
+                }`}
+              >
+                {cfg.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tasks */}

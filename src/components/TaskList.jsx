@@ -1,7 +1,29 @@
+import { useEffect, useRef } from 'react';
 import { CameraOff } from 'lucide-react';
 import TaskCard from './TaskCard';
 
-export default function TaskList({ snaps, onToggleTask, onEdit, onDelete }) {
+export default function TaskList({
+  snaps,
+  onToggleTask,
+  onEdit,
+  onDelete,
+  scrollToId,
+  onScrolled,
+}) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollToId && containerRef.current) {
+      const el = containerRef.current.querySelector(
+        `[data-snap-id="${scrollToId}"]`,
+      );
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      onScrolled?.();
+    }
+  }, [scrollToId, onScrolled]);
+
   if (snaps.length === 0) {
     return (
       <div className="flex h-[70vh] flex-col items-center justify-center px-6">
@@ -21,15 +43,16 @@ export default function TaskList({ snaps, onToggleTask, onEdit, onDelete }) {
   }
 
   return (
-    <div className="space-y-4 p-4 pb-24">
+    <div ref={containerRef} className="space-y-4 p-4 pb-24">
       {snaps.map((snap) => (
-        <TaskCard
-          key={snap.id}
-          snap={snap}
-          onToggleTask={onToggleTask}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <div key={snap.id} data-snap-id={snap.id}>
+          <TaskCard
+            snap={snap}
+            onToggleTask={onToggleTask}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        </div>
       ))}
     </div>
   );
